@@ -4,10 +4,11 @@ using System.Collections;
 public class ObservationCamera : MonoBehaviour {
     public Camera camera; // 使用するカメラ
     public bool isAutoRotate = false; // 最初に自動で回転させておくかのフラグ
-    public float minCameraAngleX = 300.0f; // カメラの最小角度
-    public float maxCameraAngleX = 60.0f; // カメラの最大角度
-    public float pinchZoomSpeed = 20.0f; // ピンチするときのズームスピード
-    public float autoRotateSpeed = 20.0f; // 自動で回転させるときのスピード
+    public float minCameraAngleX = 330.0f; // カメラの最小角度
+    public float maxCameraAngleX = 40.0f; // カメラの最大角度
+    public float swipeTurnSpeed = 20.0f; // スワイプで回転するときの回転スピード
+    public float pinchZoomSpeed = 2.0f; // ピンチするときのズームスピード
+    public float autoRotateSpeed = 20.0f; // 自動で回転させるときの回転スピード
 
     private Vector3 baseMousePos; // 基準となるタップの座標
     private Vector3 baseCameraPos; // 基準となるカメラの座標
@@ -15,6 +16,7 @@ public class ObservationCamera : MonoBehaviour {
     private float basePinchZoomDistanceY = 0f; // ズームの基準となるピンチの距離 y
     private float basePinchDistance = 0f; //  // 基準となるピンチ時の指と指の距離
     private bool isMouseDown = false; // マウスが押されているかのフラグ
+    private bool isPinchStart = true; // ピンチスタートしたかを管理するフラグ
 
         
 	void Start () {
@@ -35,16 +37,28 @@ public class ObservationCamera : MonoBehaviour {
 		} 
 		else if (Input.touchCount == 2) {
 			// ピンチでズーム用の処理群
-			if (Input.touches[0].phase == TouchPhase.Began || Input.touches[1].phase == TouchPhase.Began) {
-                basePinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
-				baseCameraPos = camera.transform.localPosition;
-			}
+          
 
-			float currentPinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
-            float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime;
-            float cameraPosZ = baseCameraPos.z + pinchZoomDistance;
+            if (Input.touches[0].phase == TouchPhase.Ended || Input.touches[1].phase == TouchPhase.Ended)
+            {
+                isPinchStart = true;
+            }
+            else if (Input.touches[0].phase == TouchPhase.Moved || Input.touches[1].phase == TouchPhase.Moved) {
+                if (isPinchStart) {
+                    isPinchStart = false;
 
-            camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
+                    basePinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
+                    baseCameraPos = camera.transform.localPosition;
+                    Debug.Log("pinch!! : " + basePinchDistance);
+                }
+
+                float currentPinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
+                float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime;
+                float cameraPosZ = baseCameraPos.z - pinchZoomDistance;
+                Debug.Log("distance : " + pinchZoomDistance);
+
+                camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
+            }
 				
 			isMouseDown = false;
             isAutoRotate = false;
@@ -62,8 +76,8 @@ public class ObservationCamera : MonoBehaviour {
 		if (isMouseDown) {
 			Vector3 mousePos = Input.mousePosition;
             Vector3 distanceMousePos = (mousePos - baseMousePos);
-			float angleX = this.transform.eulerAngles.x - distanceMousePos.y / 6;
-			float angleY = this.transform.eulerAngles.y + distanceMousePos.x / 6;
+            float angleX = this.transform.eulerAngles.x - distanceMousePos.y * swipeTurnSpeed * Time.deltaTime;
+            float angleY = this.transform.eulerAngles.y + distanceMousePos.x * swipeTurnSpeed * Time.deltaTime;
 
 			basePinchZoomDistanceX += distanceMousePos.x;
             basePinchZoomDistanceY += distanceMousePos.y;
