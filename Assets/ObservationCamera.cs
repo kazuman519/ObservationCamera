@@ -49,18 +49,11 @@ public class ObservationCamera : MonoBehaviour {
 
                     basePinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
                     baseCameraPos = camera.transform.localPosition;
-                    Debug.Log("pinch!! : " + basePinchDistance);
                 }
 
                 float currentPinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
                 float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime * 0.1f;
                 float cameraPosZ = baseCameraPos.z - pinchZoomDistance;
-                Debug.Log("distance : " + pinchZoomDistance);
-
-                // ターゲットのオブジェクトより先に行かないように制限
-                if (cameraPosZ > 0) {
-                    camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
-                }
             }
 				
 			isMouseDown = false;
