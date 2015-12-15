@@ -7,7 +7,7 @@ public class ObservationCamera : MonoBehaviour {
     public float minCameraAngleX = 330.0f; // カメラの最小角度
     public float maxCameraAngleX = 40.0f; // カメラの最大角度
     public float swipeTurnSpeed = 20.0f; // スワイプで回転するときの回転スピード
-    public float pinchZoomSpeed = 2.0f; // ピンチするときのズームスピード
+    public float pinchZoomSpeed = 10.0f; // ピンチするときのズームスピード
     public float autoRotateSpeed = 20.0f; // 自動で回転させるときの回転スピード
 
     private Vector3 baseMousePos; // 基準となるタップの座標
@@ -53,11 +53,14 @@ public class ObservationCamera : MonoBehaviour {
                 }
 
                 float currentPinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
-                float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime;
+                float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime * 0.1f;
                 float cameraPosZ = baseCameraPos.z - pinchZoomDistance;
                 Debug.Log("distance : " + pinchZoomDistance);
 
-                camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
+                // ターゲットのオブジェクトより先に行かないように制限
+                if (cameraPosZ > 0) {
+                    camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
+                }
             }
 				
 			isMouseDown = false;
