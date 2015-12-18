@@ -4,10 +4,10 @@ using System.Collections;
 public class ObservationCamera : MonoBehaviour {
     public Camera camera; // 使用するカメラ
     public bool isAutoRotate = false; // 最初に自動で回転させておくかのフラグ
-    public float minCameraAngleX = 330.0f; // カメラの最小角度
-    public float maxCameraAngleX = 40.0f; // カメラの最大角度
-    public float swipeTurnSpeed = 20.0f; // スワイプで回転するときの回転スピード
-    public float pinchZoomSpeed = 10.0f; // ピンチするときのズームスピード
+    public float minCameraAngleX = 310.0f; // カメラの最小角度
+    public float maxCameraAngleX = 20.0f; // カメラの最大角度
+    public float swipeTurnSpeed = 30.0f; // スワイプで回転するときの回転スピード
+    public float pinchZoomSpeed = 100.0f; // ピンチするときのズームスピード
     public float autoRotateSpeed = 20.0f; // 自動で回転させるときの回転スピード
 
     private Vector3 baseMousePos; // 基準となるタップの座標
@@ -52,8 +52,10 @@ public class ObservationCamera : MonoBehaviour {
                 }
 
                 float currentPinchDistance = Vector2.Distance(Input.touches[0].position, Input.touches[1].position);
-                float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * Time.deltaTime * 0.1f;
+                float pinchZoomDistance = (basePinchDistance - currentPinchDistance) * pinchZoomSpeed * 0.05f;
                 float cameraPosZ = baseCameraPos.z - pinchZoomDistance;
+
+                camera.transform.localPosition = new Vector3 (camera.transform.localPosition.x, camera.transform.localPosition.y, cameraPosZ);
             }
 				
 			isMouseDown = false;
@@ -72,8 +74,8 @@ public class ObservationCamera : MonoBehaviour {
 		if (isMouseDown) {
 			Vector3 mousePos = Input.mousePosition;
             Vector3 distanceMousePos = (mousePos - baseMousePos);
-            float angleX = this.transform.eulerAngles.x - distanceMousePos.y * swipeTurnSpeed * Time.deltaTime;
-            float angleY = this.transform.eulerAngles.y + distanceMousePos.x * swipeTurnSpeed * Time.deltaTime;
+            float angleX = this.transform.eulerAngles.x - distanceMousePos.y * swipeTurnSpeed * 0.01f;
+            float angleY = this.transform.eulerAngles.y + distanceMousePos.x * swipeTurnSpeed * 0.01f;
 
 			basePinchZoomDistanceX += distanceMousePos.x;
             basePinchZoomDistanceY += distanceMousePos.y;
